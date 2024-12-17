@@ -3,6 +3,7 @@ package sports.demoapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import sports.demoapi.controller.dto.SportsEventInputDto;
@@ -29,11 +30,7 @@ public class SportsEventController {
     @PostMapping("")
     public SportsEventResponseDto addSportsEvent(@RequestBody SportsEventInputDto inputDto) {
         SportsEvent sportsEvent = mapper.convertToEntity(inputDto);
-        try {
-            sportsEvent = service.save(sportsEvent);
-        } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
-        }
+        sportsEvent = service.save(sportsEvent);
         return mapper.convertToResponseDto(sportsEvent);
     }
 

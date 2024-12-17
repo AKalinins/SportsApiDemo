@@ -16,6 +16,8 @@
 
         <!-- Versions -->
         <spring.boot.version>3.4.0</spring.boot.version>
+        <spring.doc.version>2.7.0</spring.doc.version>
+        <modelmapper.version>3.2.2</modelmapper.version>
         <h2.version>2.3.232</h2.version>
         <lombok.version>1.18.36</lombok.version>
     </properties>
@@ -31,6 +33,20 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!-- Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${spring.doc.version}</version>
+        </dependency>
+
+        <!-- Mapping -->
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>${modelmapper.version}</version>
         </dependency>
 
         <!-- Database -->

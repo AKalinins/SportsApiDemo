@@ -20,6 +20,9 @@ public class SportsEvent {
     private String name;
 
     @Column(nullable = false)
+    private String type;
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private EventStatus status;
 

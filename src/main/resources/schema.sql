@@ -1,3 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS sportsapi;
+SET SCHEMA sportsapi;
 CREATE TABLE events
 (
     id   bigint PRIMARY KEY AUTO_INCREMENT,

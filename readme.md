@@ -12,11 +12,3 @@ can be found in application.properties file.<br/><br/>
 
 SpringDoc is used to generate API docs.<br/>
 Documentation can be accessed using URL http://localhost:8080/swagger-ui.html when the application is running.<br/><br/>
-
-Adding event JSON example:<br/>
-{<br/>
-&emsp; "name": "FIFA World Cup 2026",<br/>
-&emsp; "type": "Football",<br/>
-&emsp; "status": "INACTIVE",<br/>
-&emsp; "startTime": "2026-01-01T20:00:00"<br/>
-}<br/><br/>

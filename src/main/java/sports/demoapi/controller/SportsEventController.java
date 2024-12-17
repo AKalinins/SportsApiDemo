@@ -3,16 +3,15 @@ package sports.demoapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import sports.demoapi.controller.dto.SportsEventInputDto;
 import sports.demoapi.controller.dto.SportsEventResponseDto;
 import sports.demoapi.controller.mapper.impl.SportsEventMapper;
 import sports.demoapi.model.SportsEvent;
 import sports.demoapi.service.SportsEventService;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/sportsevent")
@@ -36,5 +35,11 @@ public class SportsEventController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getLocalizedMessage());
         }
         return mapper.convertToResponseDto(sportsEvent);
+    }
+
+    @GetMapping("/{eventId}")
+    public SportsEventResponseDto getSportsEvent(@PathVariable("eventId") long eventId) {
+        Optional<SportsEvent> optionalSportsEvent = service.getById(eventId);
+        return optionalSportsEvent.map(mapper::convertToResponseDto).orElse(null);
     }
 }

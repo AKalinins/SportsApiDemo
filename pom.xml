@@ -10,13 +10,13 @@
 
     <properties>
         <!-- Compiler -->
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Versions -->
-        <spring.boot.version>2.5.4</spring.boot.version>
-        <h2.version>2.0.202</h2.version>
+        <spring.boot.version>3.4.0</spring.boot.version>
+        <h2.version>2.3.232</h2.version>
     </properties>
 
     <dependencies>

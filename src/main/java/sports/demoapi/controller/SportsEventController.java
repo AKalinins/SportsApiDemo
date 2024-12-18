@@ -1,7 +1,9 @@
 package sports.demoapi.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import sports.demoapi.controller.dto.SportsEventInputDto;
 import sports.demoapi.controller.dto.SportsEventResponseDto;
 import sports.demoapi.controller.exception.ResourceNotFoundException;
@@ -39,7 +41,8 @@ public class SportsEventController {
     @GetMapping("/{eventId}")
     public SportsEventResponseDto getSportsEvent(@PathVariable("eventId") long eventId) {
         Optional<SportsEvent> optionalSportsEvent = service.getById(eventId);
-        return optionalSportsEvent.map(mapper::convertToResponseDto).orElse(null);
+        return optionalSportsEvent.map(mapper::convertToResponseDto)
+                .orElseThrow(() -> new ResourceNotFoundException("No event exists with id: " + eventId));
     }
 
     @PutMapping("/{eventId}")
@@ -51,9 +54,12 @@ public class SportsEventController {
             sportsEvent.setType(inputDto.getType());
         }
 
-        if (Objects.nonNull(inputDto.getStatus())
-                && statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime())) {
-            sportsEvent.setStatus(inputDto.getStatus());
+        if (Objects.nonNull(inputDto.getStatus())) {
+            if (statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime())) {
+                sportsEvent.setStatus(inputDto.getStatus());
+            } else {
+                throw new ResponseStatusException(HttpStatus.ACCEPTED, "Cannot change the status as requested for event with id: " + eventId);
+            }
         }
 
         sportsEvent = service.save(sportsEvent);

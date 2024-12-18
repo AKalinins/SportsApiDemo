@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.server.ResponseStatusException;
 import sports.demoapi.controller.dto.SportsEventInputDto;
 import sports.demoapi.controller.dto.SportsEventResponseDto;
 import sports.demoapi.controller.exception.ResourceNotFoundException;
@@ -108,40 +109,32 @@ class SportsEventControllerTest {
      * {@link SportsEventController#getSportsEvent(long)}
      */
     @Test
-    void shouldReturnNotFoundStatusIfEventNotFound() {
-
-        SportsEvent sportsEvent = new SportsEvent();
+    void shouldThrowExceptionIfSportsEventNotFoundForGet() {
 
         when(service.getById(1L)).thenReturn(Optional.empty());
 
-        SportsEventResponseDto result = target.getSportsEvent(1L);
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> target.getSportsEvent(1L));
 
-        assertNull(result);
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("No event exists with id: 1"));
         verify(service).getById(1L);
-        verify(mapper, times(0)).convertToResponseDto(sportsEvent);
+        verifyNoInteractions(mapper);
     }
 
     /**
      * {@link SportsEventController#updateSportsEvent(long, SportsEventInputDto)}
      */
     @Test
-    void shouldThrowExceptionIfSportsEventNotFound() {
+    void shouldThrowExceptionIfSportsEventNotFoundForPut() {
 
         SportsEventInputDto inputDto = new SportsEventInputDto();
 
         when(service.getById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = null;
-
-        try {
-            target.updateSportsEvent(1L, inputDto);
-        } catch (ResourceNotFoundException e) {
-            exception = e;
-        }
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> target.updateSportsEvent(1L, inputDto));
 
         assertNotNull(exception);
-        assertEquals("No event exists with id: 1", exception.getMessage());
-
+        assertTrue(exception.getMessage().contains("No event exists with id: 1"));
         verify(service, times(0)).save(any());
         verifyNoInteractions(mapper);
     }
@@ -222,23 +215,15 @@ class SportsEventControllerTest {
         SportsEventInputDto inputDto = new SportsEventInputDto();
         inputDto.setStatus(EventStatus.ACTIVE);
 
-        SportsEventResponseDto responseDto = new SportsEventResponseDto();
-
         when(service.getById(1L)).thenReturn(Optional.of(sportsEvent));
         when(statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime()))
                 .thenReturn(false);
-        when(mapper.convertToResponseDto(any())).thenReturn(responseDto);
 
-        ArgumentCaptor<SportsEvent> argumentCaptor = ArgumentCaptor.forClass(SportsEvent.class);
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> target.updateSportsEvent(1L, inputDto));
 
-        SportsEventResponseDto result = target.updateSportsEvent(1L, inputDto);
-
-        verify(service).save(argumentCaptor.capture());
-
-        assertNotNull(result);
-        assertNotEquals(inputDto.getStatus(), argumentCaptor.getValue().getStatus());
-        assertNotEquals(inputDto.getStatus(), sportsEvent.getStatus());
-        verify(service).save(sportsEvent);
-        verify(mapper).convertToResponseDto(any());
+        assertNotNull(exception);
+        assertTrue(exception.getMessage().contains("202 ACCEPTED"));
+        verify(service, times(0)).save(sportsEvent);
+        verifyNoInteractions(mapper);
     }
 }

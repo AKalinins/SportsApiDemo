@@ -13,6 +13,7 @@ import sports.demoapi.model.EventStatus;
 import sports.demoapi.model.SportsEvent;
 import sports.demoapi.service.SportsEventService;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,6 +45,12 @@ public class SportsEventController {
         Optional<SportsEvent> optionalSportsEvent = service.getById(eventId);
         return optionalSportsEvent.map(mapper::convertToResponseDto)
                 .orElseThrow(() -> new ResourceNotFoundException("No event exists with id: " + eventId));
+    }
+
+    @GetMapping("")
+    public List<SportsEventResponseDto> getSportsEvents(@RequestBody SportsEventInputDto inputDto) {
+        List<SportsEvent> listOfEvents = service.getBy(inputDto.getType(), inputDto.getStatus());
+        return listOfEvents.stream().map(mapper::convertToResponseDto).toList();
     }
 
     @PutMapping("/{eventId}/{status}")

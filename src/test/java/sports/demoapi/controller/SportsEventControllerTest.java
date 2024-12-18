@@ -18,6 +18,7 @@ import sports.demoapi.model.SportsEvent;
 import sports.demoapi.service.SportsEventService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -192,5 +193,29 @@ class SportsEventControllerTest {
         assertTrue(exception.getMessage().contains("202 ACCEPTED"));
         verify(service, times(0)).save(sportsEvent);
         verifyNoInteractions(mapper);
+    }
+
+    /**
+     * {@link SportsEventController#getSportsEvents(SportsEventInputDto)}
+     */
+    @Test
+    void shouldGetSportEvents() {
+
+        SportsEventInputDto inputDto = new SportsEventInputDto();
+        inputDto.setType("Type");
+        inputDto.setStatus(EventStatus.ACTIVE);
+
+        SportsEvent event = new SportsEvent();
+        SportsEvent event2 = new SportsEvent();
+        List<SportsEvent> listOfEvents = List.of(event, event2);
+
+        when(service.getBy(inputDto.getType(), inputDto.getStatus())).thenReturn(listOfEvents);
+        when(mapper.convertToResponseDto(any())).thenReturn(new SportsEventResponseDto());
+
+        List<SportsEventResponseDto> result = target.getSportsEvents(inputDto);
+
+        assertEquals(2, result.size());
+        verify(service).getBy(inputDto.getType(), inputDto.getStatus());
+        verify(mapper, times(2)).convertToResponseDto(any());
     }
 }

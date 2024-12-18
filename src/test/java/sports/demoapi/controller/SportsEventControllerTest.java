@@ -109,7 +109,7 @@ class SportsEventControllerTest {
      * {@link SportsEventController#getSportsEvent(long)}
      */
     @Test
-    void shouldThrowExceptionIfSportsEventNotFoundForGet() {
+    void shouldThrowExceptionIfSportsEventNotFoundDuringEventGetting() {
 
         when(service.getById(1L)).thenReturn(Optional.empty());
 
@@ -122,16 +122,15 @@ class SportsEventControllerTest {
     }
 
     /**
-     * {@link SportsEventController#updateSportsEvent(long, SportsEventInputDto)}
+     * {@link SportsEventController#updateSportsEventStatus(long, EventStatus)}
      */
     @Test
-    void shouldThrowExceptionIfSportsEventNotFoundForPut() {
-
-        SportsEventInputDto inputDto = new SportsEventInputDto();
+    void shouldThrowExceptionIfSportsEventNotFoundForDuringStatusUpdate() {
 
         when(service.getById(1L)).thenReturn(Optional.empty());
 
-        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> target.updateSportsEvent(1L, inputDto));
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class,
+                () -> target.updateSportsEventStatus(1L, EventStatus.ACTIVE));
 
         assertNotNull(exception);
         assertTrue(exception.getMessage().contains("No event exists with id: 1"));
@@ -140,37 +139,7 @@ class SportsEventControllerTest {
     }
 
     /**
-     * {@link SportsEventController#updateSportsEvent(long, SportsEventInputDto)}
-     */
-    @Test
-    void shouldUpdateSportsEventType() {
-
-        SportsEvent sportsEvent = new SportsEvent();
-        sportsEvent.setType("Football");
-
-        SportsEventInputDto inputDto = new SportsEventInputDto();
-        inputDto.setType("Basketball");
-
-        SportsEventResponseDto responseDto = new SportsEventResponseDto();
-
-        when(service.getById(1L)).thenReturn(Optional.of(sportsEvent));
-        when(mapper.convertToResponseDto(any())).thenReturn(responseDto);
-
-        ArgumentCaptor<SportsEvent> argumentCaptor = ArgumentCaptor.forClass(SportsEvent.class);
-
-        SportsEventResponseDto result = target.updateSportsEvent(1L, inputDto);
-
-        verify(service).save(argumentCaptor.capture());
-
-        assertNotNull(result);
-        assertEquals(inputDto.getType(), argumentCaptor.getValue().getType());
-        assertEquals(inputDto.getType(), sportsEvent.getType());
-        verify(service).save(sportsEvent);
-        verify(mapper).convertToResponseDto(any());
-    }
-
-    /**
-     * {@link SportsEventController#updateSportsEvent(long, SportsEventInputDto)}
+     * {@link SportsEventController#updateSportsEventStatus(long, EventStatus)}
      */
     @Test
     void shouldUpdateSportsEventStatus() {
@@ -179,31 +148,30 @@ class SportsEventControllerTest {
         sportsEvent.setStatus(EventStatus.INACTIVE);
         sportsEvent.setStartTime(LocalDateTime.of(1990, 1, 1, 10, 0));
 
-        SportsEventInputDto inputDto = new SportsEventInputDto();
-        inputDto.setStatus(EventStatus.ACTIVE);
+        EventStatus newStatus = EventStatus.ACTIVE;
 
         SportsEventResponseDto responseDto = new SportsEventResponseDto();
 
         when(service.getById(1L)).thenReturn(Optional.of(sportsEvent));
-        when(statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime()))
+        when(statusValidator.isValidChange(sportsEvent.getStatus(), newStatus, sportsEvent.getStartTime()))
                 .thenReturn(true);
         when(mapper.convertToResponseDto(any())).thenReturn(responseDto);
 
         ArgumentCaptor<SportsEvent> argumentCaptor = ArgumentCaptor.forClass(SportsEvent.class);
 
-        SportsEventResponseDto result = target.updateSportsEvent(1L, inputDto);
+        SportsEventResponseDto result = target.updateSportsEventStatus(1L, newStatus);
 
         verify(service).save(argumentCaptor.capture());
 
         assertNotNull(result);
-        assertEquals(inputDto.getStatus(), argumentCaptor.getValue().getStatus());
-        assertEquals(inputDto.getStatus(), sportsEvent.getStatus());
+        assertEquals(newStatus, argumentCaptor.getValue().getStatus());
+        assertEquals(newStatus, sportsEvent.getStatus());
         verify(service).save(sportsEvent);
         verify(mapper).convertToResponseDto(any());
     }
 
     /**
-     * {@link SportsEventController#updateSportsEvent(long, SportsEventInputDto)}
+     * {@link SportsEventController#updateSportsEventStatus(long, EventStatus)}
      */
     @Test
     void shouldNotUpdateSportsEventStatusIfValidationNotPassed() {
@@ -212,14 +180,13 @@ class SportsEventControllerTest {
         sportsEvent.setStatus(EventStatus.INACTIVE);
         sportsEvent.setStartTime(LocalDateTime.of(1990, 1, 1, 10, 0));
 
-        SportsEventInputDto inputDto = new SportsEventInputDto();
-        inputDto.setStatus(EventStatus.ACTIVE);
+        EventStatus newStatus = EventStatus.ACTIVE;
 
         when(service.getById(1L)).thenReturn(Optional.of(sportsEvent));
-        when(statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime()))
+        when(statusValidator.isValidChange(sportsEvent.getStatus(), newStatus, sportsEvent.getStartTime()))
                 .thenReturn(false);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> target.updateSportsEvent(1L, inputDto));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> target.updateSportsEventStatus(1L, newStatus));
 
         assertNotNull(exception);
         assertTrue(exception.getMessage().contains("202 ACCEPTED"));

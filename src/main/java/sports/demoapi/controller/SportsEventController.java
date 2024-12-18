@@ -9,6 +9,7 @@ import sports.demoapi.controller.dto.SportsEventResponseDto;
 import sports.demoapi.controller.exception.ResourceNotFoundException;
 import sports.demoapi.controller.mapper.impl.SportsEventMapper;
 import sports.demoapi.controller.validator.SportsEventStatusChangeValidator;
+import sports.demoapi.model.EventStatus;
 import sports.demoapi.model.SportsEvent;
 import sports.demoapi.service.SportsEventService;
 
@@ -45,21 +46,15 @@ public class SportsEventController {
                 .orElseThrow(() -> new ResourceNotFoundException("No event exists with id: " + eventId));
     }
 
-    @PutMapping("/{eventId}")
-    public SportsEventResponseDto updateSportsEvent(@PathVariable("eventId") long eventId, @RequestBody SportsEventInputDto inputDto) {
+    @PutMapping("/{eventId}/{status}")
+    public SportsEventResponseDto updateSportsEventStatus(@PathVariable("eventId") long eventId, @PathVariable("status") EventStatus newStatus) {
 
         SportsEvent sportsEvent = service.getById(eventId).orElseThrow(() -> new ResourceNotFoundException("No event exists with id: " + eventId));
 
-        if (Objects.nonNull(inputDto.getType())) {
-            sportsEvent.setType(inputDto.getType());
-        }
-
-        if (Objects.nonNull(inputDto.getStatus())) {
-            if (statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime())) {
-                sportsEvent.setStatus(inputDto.getStatus());
-            } else {
-                throw new ResponseStatusException(HttpStatus.ACCEPTED, "Cannot change the status as requested for event with id: " + eventId);
-            }
+        if (statusValidator.isValidChange(sportsEvent.getStatus(), newStatus, sportsEvent.getStartTime())) {
+            sportsEvent.setStatus(newStatus);
+        } else {
+            throw new ResponseStatusException(HttpStatus.ACCEPTED, "Cannot change the status as requested for event with id: " + eventId);
         }
 
         sportsEvent = service.save(sportsEvent);

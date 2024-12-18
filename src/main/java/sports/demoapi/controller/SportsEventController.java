@@ -6,6 +6,7 @@ import sports.demoapi.controller.dto.SportsEventInputDto;
 import sports.demoapi.controller.dto.SportsEventResponseDto;
 import sports.demoapi.controller.exception.ResourceNotFoundException;
 import sports.demoapi.controller.mapper.impl.SportsEventMapper;
+import sports.demoapi.controller.validator.SportsEventStatusChangeValidator;
 import sports.demoapi.model.SportsEvent;
 import sports.demoapi.service.SportsEventService;
 
@@ -18,11 +19,14 @@ public class SportsEventController {
 
     private final SportsEventService service;
     private final SportsEventMapper mapper;
+    private final SportsEventStatusChangeValidator statusValidator;
 
     @Autowired
-    public SportsEventController(SportsEventService service, SportsEventMapper mapper) {
+    public SportsEventController(SportsEventService service, SportsEventMapper mapper,
+                                 SportsEventStatusChangeValidator statusValidator) {
         this.service = service;
         this.mapper = mapper;
+        this.statusValidator = statusValidator;
     }
 
     @PostMapping("")
@@ -47,7 +51,8 @@ public class SportsEventController {
             sportsEvent.setType(inputDto.getType());
         }
 
-        if (Objects.nonNull(inputDto.getStatus())) {
+        if (Objects.nonNull(inputDto.getStatus())
+                && statusValidator.isValidChange(sportsEvent.getStatus(), inputDto.getStatus(), sportsEvent.getStartTime())) {
             sportsEvent.setStatus(inputDto.getStatus());
         }
 

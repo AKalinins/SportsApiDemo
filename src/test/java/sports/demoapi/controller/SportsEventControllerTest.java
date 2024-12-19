@@ -196,26 +196,25 @@ class SportsEventControllerTest {
     }
 
     /**
-     * {@link SportsEventController#getSportsEvents(SportsEventInputDto)}
+     * {@link SportsEventController#getSportEvents(String, EventStatus)}
      */
     @Test
     void shouldGetSportEvents() {
 
-        SportsEventInputDto inputDto = new SportsEventInputDto();
-        inputDto.setType("Type");
-        inputDto.setStatus(EventStatus.ACTIVE);
+        String type = "Type";
+        EventStatus status = EventStatus.ACTIVE;
 
         SportsEvent event = new SportsEvent();
         SportsEvent event2 = new SportsEvent();
         List<SportsEvent> listOfEvents = List.of(event, event2);
 
-        when(service.getBy(inputDto.getType(), inputDto.getStatus())).thenReturn(listOfEvents);
+        when(service.getBy(type, status)).thenReturn(listOfEvents);
         when(mapper.convertToResponseDto(any())).thenReturn(new SportsEventResponseDto());
 
-        List<SportsEventResponseDto> result = target.getSportsEvents(inputDto);
+        List<SportsEventResponseDto> result = target.getSportEvents(type, status);
 
         assertEquals(2, result.size());
-        verify(service).getBy(inputDto.getType(), inputDto.getStatus());
+        verify(service).getBy(type, status);
         verify(mapper, times(2)).convertToResponseDto(any());
     }
 }

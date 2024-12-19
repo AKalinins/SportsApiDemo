@@ -14,11 +14,10 @@ import sports.demoapi.model.SportsEvent;
 import sports.demoapi.service.SportsEventService;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/sportsevent")
+@RequestMapping("/api/v1/")
 public class SportsEventController {
 
     private final SportsEventService service;
@@ -47,9 +46,10 @@ public class SportsEventController {
                 .orElseThrow(() -> new ResourceNotFoundException("No event exists with id: " + eventId));
     }
 
-    @GetMapping("")
-    public List<SportsEventResponseDto> getSportsEvents(@RequestBody SportsEventInputDto inputDto) {
-        List<SportsEvent> listOfEvents = service.getBy(inputDto.getType(), inputDto.getStatus());
+    @GetMapping("/events")
+    public List<SportsEventResponseDto> getSportEvents(@RequestParam(value = "type", required = false) String type,
+                                                       @RequestParam(value = "status", required = false) EventStatus status) {
+        List<SportsEvent> listOfEvents = service.getBy(type, status);
         return listOfEvents.stream().map(mapper::convertToResponseDto).toList();
     }
 
